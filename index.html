@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Learning Tracker — 90 Days to LLM Expert</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0f0f11;
+    --bg2: #17171a;
+    --bg3: #1e1e23;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0eff5;
+    --muted: #8a8896;
+    --hint: #5a5966;
+    --purple: #7f77dd;
+    --purple-light: #afa9ec;
+    --purple-dim: #2a2550;
+    --teal: #1d9e75;
+    --teal-light: #5dcaa5;
+    --teal-dim: #0a2e22;
+    --amber: #ba7517;
+    --amber-light: #fac775;
+    --amber-dim: #2e1e05;
+    --red: #e24b4a;
+    --red-dim: #2e1010;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  a { color: var(--purple-light); }
+
+  /* HEADER */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--purple); display: inline-block;
+  }
+  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .notify-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; padding: 6px 12px;
+    border: 1px solid var(--border2);
+    border-radius: 20px; background: transparent;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+  .notify-btn:hover { border-color: var(--purple); color: var(--purple-light); }
+  .notify-btn.active { border-color: var(--teal); color: var(--teal-light); background: var(--teal-dim); }
+  .reset-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px; background: transparent;
+    color: var(--hint); cursor: pointer; transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* MAIN */
+  .main { max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* HERO STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 24px; }
+  .stat {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 16px 14px; text-align: center;
+  }
+  .stat-val { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 5px; font-family: 'Space Mono', monospace; }
+  .v-purple { color: var(--purple-light); }
+  .v-teal { color: var(--teal-light); }
+  .v-amber { color: var(--amber-light); }
+
+  /* OVERALL PROGRESS BAR */
+  .overall-prog { margin-bottom: 24px; }
+  .prog-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .prog-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .prog-sub { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .prog-track {
+    height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .prog-fill { height: 100%; background: var(--purple); border-radius: 4px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+  /* STREAK CALENDAR */
+  .section-label {
+    font-size: 10px; font-family: 'Space Mono', monospace;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--hint); margin-bottom: 10px;
+  }
+  .calendar-wrap { margin-bottom: 24px; }
+  .calendar {
+    display: flex; gap: 4px; flex-wrap: wrap;
+  }
+  .cal-day {
+    width: 22px; height: 22px; border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg2); cursor: default;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .cal-day.done { background: var(--purple); border-color: var(--purple); }
+  .cal-day.today { border-color: var(--amber); }
+  .cal-day.future { opacity: 0.3; }
+
+  /* WEEK TABS */
+  .week-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .wtab {
+    padding: 7px 16px; border-radius: 20px;
+    border: 1px solid var(--border2);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; color: var(--muted);
+    background: transparent; transition: all 0.15s;
+    font-family: 'Syne', sans-serif;
+  }
+  .wtab:hover { border-color: var(--purple); color: var(--purple-light); }
+  .wtab.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple-light); }
+  .wtab.complete { background: var(--teal-dim); border-color: var(--teal); color: var(--teal-light); }
+
+  /* WEEK PANEL */
+  .week-panel { display: none; }
+  .week-panel.active { display: block; }
+
+  .week-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 12px;
+    margin-bottom: 16px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .week-title { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1.2; }
+  .week-theme { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .week-badge {
+    font-size: 10px; font-weight: 700; padding: 5px 12px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    font-family: 'Space Mono', monospace; letter-spacing: 0.5px;
+  }
+  .badge-p { background: var(--purple-dim); color: var(--purple-light); border: 1px solid var(--purple); }
+  .badge-t { background: var(--teal-dim); color: var(--teal-light); border: 1px solid var(--teal); }
+  .badge-a { background: var(--amber-dim); color: var(--amber-light); border: 1px solid var(--amber); }
+
+  /* WEEK PROGRESS */
+  .week-prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .week-prog-track { flex: 1; height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .week-prog-fill { height: 4px; background: var(--purple); border-radius: 2px; transition: width 0.4s; }
+  .week-prog-label { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; min-width: 40px; text-align: right; }
+
+  /* DAY ROWS */
+  .days { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .day-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px; border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg2); cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .day-row:hover { border-color: var(--border2); background: var(--bg3); }
+  .day-row.done { border-color: var(--teal); background: var(--teal-dim); }
+  .day-row.today-task { border-color: var(--amber) !important; }
+  .day-check {
+    width: 20px; height: 20px; border-radius: 5px;
+    border: 1.5px solid var(--hint);
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 12px;
+    transition: all 0.15s; margin-top: 1px; color: white;
+  }
+  .day-row.done .day-check { background: var(--teal); border-color: var(--teal); }
+  .day-label {
+    font-size: 11px; font-weight: 700; color: var(--hint);
+    min-width: 26px; margin-top: 2px;
+    font-family: 'Space Mono', monospace;
+  }
+  .day-row.today-task .day-label { color: var(--amber-light); }
+  .day-content { flex: 1; }
+  .day-task { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .day-detail { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .day-tags { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+  .day-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+  }
+  .tag-read { background: #1a2540; color: #85b7eb; }
+  .tag-code { background: var(--purple-dim); color: var(--purple-light); }
+  .tag-build { background: var(--teal-dim); color: var(--teal-light); }
+  .tag-review { background: var(--amber-dim); color: var(--amber-light); }
+  .tag-ship { background: #1a2e1a; color: #97c459; }
+  .tag-exp { background: #2a1a2e; color: #ed93b1; }
+
+  /* DELIVERABLE */
+  .deliverable {
+    padding: 14px 16px;
+    border-left: 3px solid var(--teal);
+    background: var(--teal-dim);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: 16px;
+  }
+  .del-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--teal-light); margin-bottom: 5px;
+    font-family: 'Space Mono', monospace;
+  }
+  .del-text { font-size: 13px; color: var(--text); font-weight: 600; line-height: 1.4; }
+
+  /* RESOURCES */
+  .res-label {
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--hint); margin-bottom: 8px;
+    font-family: 'Space Mono', monospace;
+  }
+  .res-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .res-chip {
+    font-size: 11px; padding: 5px 12px;
+    border-radius: 8px; border: 1px solid var(--border2);
+    color: var(--muted); cursor: pointer;
+    transition: all 0.15s; background: var(--bg3);
+    font-family: 'Space Mono', monospace;
+  }
+  .res-chip:hover { border-color: var(--purple); color: var(--purple-light); background: var(--purple-dim); }
+
+  /* TODAY BANNER */
+  .today-banner {
+    background: var(--amber-dim);
+    border: 1px solid var(--amber);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .today-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--amber); color: #1a0e00;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; flex-shrink: 0;
+  }
+  .today-content {}
+  .today-title { font-size: 12px; font-weight: 700; color: var(--amber-light); font-family: 'Space Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px; }
+  .today-task { font-size: 14px; font-weight: 700; color: var(--text); }
+  .today-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* NOTIFICATION SETUP */
+  .notif-setup {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 16px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .notif-setup.show { display: block; }
+  .notif-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+  .notif-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .notif-row label { font-size: 13px; color: var(--muted); }
+  .time-input {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'Space Mono', monospace; font-size: 14px;
+    padding: 7px 12px; outline: none;
+  }
+  .time-input:focus { border-color: var(--purple); }
+  .save-notif {
+    padding: 8px 16px; border-radius: var(--radius);
+    background: var(--purple); border: none;
+    color: white; font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .save-notif:hover { background: #534ab7; }
+
+  /* FOOTER NAV */
+  .footer-nav {
+    display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap;
+  }
+  .fnav {
+    flex: 1; min-width: 120px; padding: 11px 14px;
+    border-radius: var(--radius); border: 1px solid var(--border2);
+    background: transparent; font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .fnav:hover { border-color: var(--purple); color: var(--purple-light); background: var(--purple-dim); }
+  .fnav.primary { background: var(--purple); color: white; border-color: var(--purple); }
+  .fnav.primary:hover { background: #534ab7; }
+
+  /* CONFETTI */
+  .confetti-wrap {
+    pointer-events: none; position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
+  }
+  .confetti-piece {
+    position: absolute; width: 8px; height: 8px;
+    border-radius: 2px; animation: fall 1.2s ease-in forwards;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 520px) {
+    .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .stat-val { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <span class="logo-dot"></span>
+    <span class="logo-text">AI Learning Tracker</span>
+  </div>
+  <div class="header-right">
+    <button class="notify-btn" id="notif-btn" onclick="toggleNotifSetup()">&#9881; Set reminder</button>
+    <button class="reset-btn" onclick="confirmReset()">Reset progress</button>
+  </div>
+</header>
+
+<div class="notif-setup" id="notif-setup">
+  <div class="notif-title">Daily browser reminder</div>
+  <div class="notif-row">
+    <label>Study time:</label>
+    <input type="time" class="time-input" id="reminder-time" value="09:00"/>
+    <button class="save-notif" onclick="saveReminder()">Save reminder</button>
+  </div>
+  <p style="font-size:12px;color:var(--hint);margin-top:10px">Opens a browser notification at your chosen time each day. Keep this tab open (or bookmark it) and allow notifications when prompted.</p>
+</div>
+
+<div class="main">
+
+  <!-- TODAY BANNER -->
+  <div id="today-banner" class="today-banner" style="display:none">
+    <div class="today-icon" id="today-day-num">1</div>
+    <div class="today-content">
+      <div class="today-title">Today's task — Day <span id="today-num">1</span></div>
+      <div class="today-task" id="today-task-text">—</div>
+      <div class="today-detail" id="today-task-detail">—</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val v-purple" id="s-done">0</div>
+      <div class="stat-lbl">Tasks done</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val v-teal" id="s-streak">0</div>
+      <div class="stat-lbl">Day streak</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val v-amber" id="s-pct">0%</div>
+      <div class="stat-lbl">Complete</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="s-left">28</div>
+      <div class="stat-lbl">Days left</div>
+    </div>
+  </div>
+
+  <!-- OVERALL PROGRESS -->
+  <div class="overall-prog">
+    <div class="prog-header">
+      <span class="prog-title">Month 1 — LLM Foundations</span>
+      <span class="prog-sub" id="prog-label">0 / 28 tasks</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- STREAK CALENDAR -->
+  <div class="calendar-wrap">
+    <div class="section-label">28-day activity map</div>
+    <div class="calendar" id="calendar"></div>
+  </div>
+
+  <!-- WEEK TABS -->
+  <div class="week-tabs">
+    <button class="wtab active" id="tab0" onclick="showWeek(0)">Week 1</button>
+    <button class="wtab" id="tab1" onclick="showWeek(1)">Week 2</button>
+    <button class="wtab" id="tab2" onclick="showWeek(2)">Week 3</button>
+    <button class="wtab" id="tab3" onclick="showWeek(3)">Week 4</button>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week-panel active" id="wp0">
+    <div class="week-header">
+      <div>
+        <div class="week-title">Week 1 — How LLMs actually work</div>
+        <div class="week-theme">Build mental models before you touch any code</div>
+      </div>
+      <span class="week-badge badge-p">Foundations</span>
+    </div>
+    <div class="week-prog-row">
+      <div class="week-prog-track"><div class="week-prog-fill" id="wp0-fill" style="width:0%"></div></div>
+      <div class="week-prog-label" id="wp0-lbl">0 / 7</div>
+    </div>
+    <div class="days" id="days-0">
+      <div class="day-row" data-day="0" onclick="toggleDay(0)"><div class="day-check" id="dc0"></div><div class="day-label">MON</div><div class="day-content"><div class="day-task">Read "Attention is All You Need" (abstract + intro only)</div><div class="day-detail">Understand why transformers replaced RNNs. No need to digest the full math yet.</div><div class="day-tags"><span class="day-tag tag-read">Read</span></div></div></div>
+      <div class="day-row" data-day="1" onclick="toggleDay(1)"><div class="day-check" id="dc1"></div><div class="day-label">TUE</div><div class="day-content"><div class="day-task">Watch Andrej Karpathy's "Intro to LLMs" (1hr video)</div><div class="day-detail">Best single explanation of how LLMs work. Take notes on tokens, context, and next-token prediction.</div><div class="day-tags"><span class="day-tag tag-read">Watch</span></div></div></div>
+      <div class="day-row" data-day="2" onclick="toggleDay(2)"><div class="day-check" id="dc2"></div><div class="day-label">WED</div><div class="day-content"><div class="day-task">Set up OpenAI + Anthropic API keys, make your first API call</div><div class="day-detail">Python script: send a message, print the response. Try temperature, max_tokens, system prompt params.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="3" onclick="toggleDay(3)"><div class="day-check" id="dc3"></div><div class="day-label">THU</div><div class="day-content"><div class="day-task">Explore tokenization hands-on with OpenAI Tokenizer</div><div class="day-detail">Tokenize 10 different inputs. Understand why "ChatGPT" is 3 tokens. Learn how context windows are measured.</div><div class="day-tags"><span class="day-tag tag-exp">Experiment</span></div></div></div>
+      <div class="day-row" data-day="4" onclick="toggleDay(4)"><div class="day-check" id="dc4"></div><div class="day-label">FRI</div><div class="day-content"><div class="day-task">Deep dive: temperature, top-p, frequency/presence penalty</div><div class="day-detail">Write a script that runs the same prompt 10x at different temperatures. Log outputs. See the difference.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="5" onclick="toggleDay(5)"><div class="day-check" id="dc5"></div><div class="day-label">SAT</div><div class="day-content"><div class="day-task">Build a simple CLI chatbot with conversation history</div><div class="day-detail">Maintain a messages array, append user + assistant turns. Understand stateless vs stateful chat.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="6" onclick="toggleDay(6)"><div class="day-check" id="dc6"></div><div class="day-label">SUN</div><div class="day-content"><div class="day-task">Weekly review + write 5 things you learned</div><div class="day-detail">Post a tweet or LinkedIn note. Teaching forces clarity. Consolidate notes in a GitHub README.</div><div class="day-tags"><span class="day-tag tag-review">Review</span></div></div></div>
+    </div>
+    <div class="deliverable"><div class="del-label">Week 1 deliverable</div><div class="del-text">Working CLI chatbot with multi-turn conversation + notes doc explaining LLM fundamentals in your own words</div></div>
+    <div class="res-label">Resources</div>
+    <div class="res-chips">
+      <span class="res-chip" onclick="openLink('https://arxiv.org/abs/1706.03762')">Attention is All You Need</span>
+      <span class="res-chip" onclick="openLink('https://www.youtube.com/watch?v=zjkBMFhNj_g')">Karpathy: Intro to LLMs</span>
+      <span class="res-chip" onclick="openLink('https://platform.openai.com/tokenizer')">OpenAI Tokenizer</span>
+      <span class="res-chip" onclick="openLink('https://platform.openai.com/docs/quickstart')">OpenAI Quickstart</span>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-panel" id="wp1">
+    <div class="week-header">
+      <div>
+        <div class="week-title">Week 2 — Prompt engineering mastery</div>
+        <div class="week-theme">Learn to communicate with models precisely</div>
+      </div>
+      <span class="week-badge badge-p">Prompting</span>
+    </div>
+    <div class="week-prog-row">
+      <div class="week-prog-track"><div class="week-prog-fill" id="wp1-fill" style="width:0%"></div></div>
+      <div class="week-prog-label" id="wp1-lbl">0 / 7</div>
+    </div>
+    <div class="days" id="days-1">
+      <div class="day-row" data-day="7" onclick="toggleDay(7)"><div class="day-check" id="dc7"></div><div class="day-label">MON</div><div class="day-content"><div class="day-task">Study zero-shot vs few-shot prompting patterns</div><div class="day-detail">Build a prompt test harness: same task, 5 different prompts, measure output quality manually.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="8" onclick="toggleDay(8)"><div class="day-check" id="dc8"></div><div class="day-label">TUE</div><div class="day-content"><div class="day-task">Learn chain-of-thought (CoT) prompting</div><div class="day-detail">Add "think step by step" to 10 different reasoning tasks. Compare outputs with and without CoT.</div><div class="day-tags"><span class="day-tag tag-exp">Experiment</span></div></div></div>
+      <div class="day-row" data-day="9" onclick="toggleDay(9)"><div class="day-check" id="dc9"></div><div class="day-label">WED</div><div class="day-content"><div class="day-task">System prompts: persona, rules, output format control</div><div class="day-detail">Build 3 different assistants with distinct personas using only system prompts. Learn XML tags for structure.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="10" onclick="toggleDay(10)"><div class="day-check" id="dc10"></div><div class="day-label">THU</div><div class="day-content"><div class="day-task">Structured output with JSON mode + function calling basics</div><div class="day-detail">Use OpenAI's response_format: json_object. Parse outputs reliably. No more regex on LLM text.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="11" onclick="toggleDay(11)"><div class="day-check" id="dc11"></div><div class="day-label">FRI</div><div class="day-content"><div class="day-task">ReAct prompting pattern + tool use intro</div><div class="day-detail">Implement a simple ReAct loop manually: Thought → Action → Observation → repeat.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="12" onclick="toggleDay(12)"><div class="day-check" id="dc12"></div><div class="day-label">SAT</div><div class="day-content"><div class="day-task">Build a prompt library with 20+ reusable templates</div><div class="day-detail">Summarizer, classifier, extractor, Q&A, rewriter, code explainer. Store in a Python dict or JSON.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="13" onclick="toggleDay(13)"><div class="day-check" id="dc13"></div><div class="day-label">SUN</div><div class="day-content"><div class="day-task">Review + publish your prompt library to GitHub</div><div class="day-detail">Add a README with examples. Share on Twitter/LinkedIn for feedback.</div><div class="day-tags"><span class="day-tag tag-ship">Ship</span></div></div></div>
+    </div>
+    <div class="deliverable"><div class="del-label">Week 2 deliverable</div><div class="del-text">Public GitHub repo: prompt engineering library with 20+ templates + a test harness that benchmarks prompt variants</div></div>
+    <div class="res-label">Resources</div>
+    <div class="res-chips">
+      <span class="res-chip" onclick="openLink('https://www.promptingguide.ai/')">Prompting Guide</span>
+      <span class="res-chip" onclick="openLink('https://platform.openai.com/docs/guides/function-calling')">Function calling docs</span>
+      <span class="res-chip" onclick="openLink('https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview')">Anthropic prompting guide</span>
+    </div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-panel" id="wp2">
+    <div class="week-header">
+      <div>
+        <div class="week-title">Week 3 — LangChain + memory + chains</div>
+        <div class="week-theme">Graduate from raw API to building real pipelines</div>
+      </div>
+      <span class="week-badge badge-t">Frameworks</span>
+    </div>
+    <div class="week-prog-row">
+      <div class="week-prog-track"><div class="week-prog-fill" id="wp2-fill" style="width:0%"></div></div>
+      <div class="week-prog-label" id="wp2-lbl">0 / 7</div>
+    </div>
+    <div class="days" id="days-2">
+      <div class="day-row" data-day="14" onclick="toggleDay(14)"><div class="day-check" id="dc14"></div><div class="day-label">MON</div><div class="day-content"><div class="day-task">LangChain core concepts: chains, prompts, output parsers</div><div class="day-detail">Rebuild your Week 1 chatbot using LCEL. Notice what the framework handles for you.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="15" onclick="toggleDay(15)"><div class="day-check" id="dc15"></div><div class="day-label">TUE</div><div class="day-content"><div class="day-task">Memory types: buffer, summary, entity memory</div><div class="day-detail">Build a chatbot with ConversationSummaryBufferMemory. Compare to simple message history.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="16" onclick="toggleDay(16)"><div class="day-check" id="dc16"></div><div class="day-label">WED</div><div class="day-content"><div class="day-task">Build a sequential chain: research → summarize → reformat</div><div class="day-detail">Three LLM calls chained together. Output of each feeds the next. Practice passing state between steps.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="17" onclick="toggleDay(17)"><div class="day-check" id="dc17"></div><div class="day-label">THU</div><div class="day-content"><div class="day-task">Streaming responses with LangChain</div><div class="day-detail">Implement streaming so users see tokens appear in real time. Understand why this matters for UX.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="18" onclick="toggleDay(18)"><div class="day-check" id="dc18"></div><div class="day-label">FRI</div><div class="day-content"><div class="day-task">Add web search tool to your chain (Tavily or SerpAPI)</div><div class="day-detail">Your first tool-augmented LLM. The model decides when to search. Wire results back into the prompt.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="19" onclick="toggleDay(19)"><div class="day-check" id="dc19"></div><div class="day-label">SAT</div><div class="day-content"><div class="day-task">Wrap everything in a FastAPI backend with streaming endpoint</div><div class="day-detail">/chat endpoint, POST body with message, streams tokens back. This is the real-world interface pattern.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="20" onclick="toggleDay(20)"><div class="day-check" id="dc20"></div><div class="day-label">SUN</div><div class="day-content"><div class="day-task">Deploy to Railway or Render. Share the live URL.</div><div class="day-detail">Free tier is fine. A deployed URL beats a local demo every time. Add it to your GitHub README.</div><div class="day-tags"><span class="day-tag tag-ship">Ship</span></div></div></div>
+    </div>
+    <div class="deliverable"><div class="del-label">Week 3 deliverable</div><div class="del-text">Live FastAPI chatbot (deployed URL) with memory + web search tool. Shareable link in your portfolio.</div></div>
+    <div class="res-label">Resources</div>
+    <div class="res-chips">
+      <span class="res-chip" onclick="openLink('https://python.langchain.com/docs/expression_language/')">LCEL docs</span>
+      <span class="res-chip" onclick="openLink('https://fastapi.tiangolo.com/')">FastAPI docs</span>
+      <span class="res-chip" onclick="openLink('https://docs.tavily.com/')">Tavily search API</span>
+      <span class="res-chip" onclick="openLink('https://railway.app/')">Railway (free deploy)</span>
+    </div>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week-panel" id="wp3">
+    <div class="week-header">
+      <div>
+        <div class="week-title">Week 4 — Ship the chatbot project</div>
+        <div class="week-theme">Go from prototype to portfolio-ready product</div>
+      </div>
+      <span class="week-badge badge-a">Ship it</span>
+    </div>
+    <div class="week-prog-row">
+      <div class="week-prog-track"><div class="week-prog-fill" id="wp3-fill" style="width:0%"></div></div>
+      <div class="week-prog-label" id="wp3-lbl">0 / 7</div>
+    </div>
+    <div class="days" id="days-3">
+      <div class="day-row" data-day="21" onclick="toggleDay(21)"><div class="day-check" id="dc21"></div><div class="day-label">MON</div><div class="day-content"><div class="day-task">Pick your chatbot domain and write a problem statement</div><div class="day-detail">Customer support, tutor, coding helper, or HR FAQ bot. Domain-specific beats generic in portfolios.</div><div class="day-tags"><span class="day-tag tag-review">Plan</span></div></div></div>
+      <div class="day-row" data-day="22" onclick="toggleDay(22)"><div class="day-check" id="dc22"></div><div class="day-label">TUE</div><div class="day-content"><div class="day-task">Build the system prompt + persona + guardrails</div><div class="day-detail">Detailed system prompt with role, rules, tone, and out-of-scope handling. Test 50+ edge case inputs.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="23" onclick="toggleDay(23)"><div class="day-check" id="dc23"></div><div class="day-label">WED</div><div class="day-content"><div class="day-task">Add a Streamlit or Gradio frontend</div><div class="day-detail">Simple chat UI with streaming output. Sidebar for settings. Takes ~2hrs, looks very professional.</div><div class="day-tags"><span class="day-tag tag-build">Build</span></div></div></div>
+      <div class="day-row" data-day="24" onclick="toggleDay(24)"><div class="day-check" id="dc24"></div><div class="day-label">THU</div><div class="day-content"><div class="day-task">Add logging: save every conversation to SQLite</div><div class="day-detail">Log timestamp, user message, assistant response, token count, latency. Your first eval dataset.</div><div class="day-tags"><span class="day-tag tag-code">Code</span></div></div></div>
+      <div class="day-row" data-day="25" onclick="toggleDay(25)"><div class="day-check" id="dc25"></div><div class="day-label">FRI</div><div class="day-content"><div class="day-task">Write 20 test cases + run evals manually</div><div class="day-detail">Spreadsheet: input, expected output, actual output, pass/fail. Shows employers you think like an engineer.</div><div class="day-tags"><span class="day-tag tag-review">Eval</span></div></div></div>
+      <div class="day-row" data-day="26" onclick="toggleDay(26)"><div class="day-check" id="dc26"></div><div class="day-label">SAT</div><div class="day-content"><div class="day-task">Deploy final version + write project README</div><div class="day-detail">README: problem, architecture diagram, tech stack, key decisions, what you'd do differently.</div><div class="day-tags"><span class="day-tag tag-ship">Ship</span></div></div></div>
+      <div class="day-row" data-day="27" onclick="toggleDay(27)"><div class="day-check" id="dc27"></div><div class="day-label">SUN</div><div class="day-content"><div class="day-task">Month 1 retrospective + prep for Month 2 (RAG)</div><div class="day-detail">Write 3 surprises, 3 things to learn next, 1 thing you'd do differently. You're ready for RAG.</div><div class="day-tags"><span class="day-tag tag-review">Review</span></div></div></div>
+    </div>
+    <div class="deliverable"><div class="del-label">Week 4 deliverable</div><div class="del-text">Domain-specific chatbot: live URL + GitHub repo with README, architecture notes, eval spreadsheet, and logging.</div></div>
+    <div class="res-label">Resources</div>
+    <div class="res-chips">
+      <span class="res-chip" onclick="openLink('https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps')">Streamlit chat tutorial</span>
+      <span class="res-chip" onclick="openLink('https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax')">GitHub README guide</span>
+      <span class="res-chip" onclick="openLink('https://www.sqlite.org/index.html')">SQLite docs</span>
+    </div>
+  </div>
+
+  <div class="footer-nav">
+    <button class="fnav" onclick="openLink('https://github.com')">Open GitHub ↗</button>
+    <button class="fnav primary" onclick="openLink('https://platform.openai.com/api-keys')">Get API key ↗</button>
+  </div>
+
+</div>
+
+<div class="confetti-wrap" id="confetti"></div>
+
+<script>
+const STORAGE_KEY = 'ai-tracker-v1';
+const TOTAL = 28;
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+function saveState(s) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+}
+
+let state = loadState();
+if (!state.done) state.done = {};
+if (!state.startDate) { state.startDate = new Date().toISOString().slice(0,10); saveState(state); }
+
+function getDayIndex() {
+  const start = new Date(state.startDate);
+  const now = new Date();
+  const diff = Math.floor((now - start) / 86400000);
+  return Math.min(Math.max(diff, 0), 27);
+}
+
+function toggleDay(i) {
+  state.done[i] = !state.done[i];
+  if (state.done[i]) {
+    const today = new Date().toISOString().slice(0,10);
+    if (!state.completedDates) state.completedDates = {};
+    state.completedDates[today] = true;
+    confetti();
+  }
+  saveState(state);
+  render();
+}
+
+function render() {
+  const doneCount = Object.values(state.done).filter(Boolean).length;
+  const pct = Math.round((doneCount / TOTAL) * 100);
+  document.getElementById('s-done').textContent = doneCount;
+  document.getElementById('s-pct').textContent = pct + '%';
+  document.getElementById('s-left').textContent = Math.max(0, TOTAL - doneCount);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = doneCount + ' / ' + TOTAL + ' tasks';
+
+  // Streak
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 28; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    if (state.completedDates && state.completedDates[key]) streak++;
+    else if (i > 0) break;
+  }
+  document.getElementById('s-streak').textContent = streak;
+
+  // Per-day checkboxes
+  for (let i = 0; i < TOTAL; i++) {
+    const dc = document.getElementById('dc' + i);
+    const row = dc ? dc.closest('.day-row') : null;
+    if (dc) dc.textContent = state.done[i] ? '✓' : '';
+    if (row) row.classList.toggle('done', !!state.done[i]);
+  }
+
+  // Week progress bars
+  for (let w = 0; w < 4; w++) {
+    let wDone = 0;
+    for (let d = w*7; d < w*7+7; d++) { if (state.done[d]) wDone++; }
+    const wPct = Math.round((wDone / 7) * 100);
+    document.getElementById('wp'+w+'-fill').style.width = wPct + '%';
+    document.getElementById('wp'+w+'-lbl').textContent = wDone + ' / 7';
+    const tab = document.getElementById('tab'+w);
+    if (wDone === 7) tab.classList.add('complete'); else tab.classList.remove('complete');
+  }
+
+  // Calendar
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    const dayIndex = getDayIndex();
+    if (state.done[i]) el.classList.add('done');
+    else if (i === dayIndex) el.classList.add('today');
+    else if (i > dayIndex) el.classList.add('future');
+    el.title = 'Day ' + (i+1);
+    cal.appendChild(el);
+  }
+
+  // Today banner
+  const todayIdx = getDayIndex();
+  if (todayIdx < TOTAL && !state.done[todayIdx]) {
+    const tasks = getAllTasks();
+    const t = tasks[todayIdx];
+    document.getElementById('today-banner').style.display = 'flex';
+    document.getElementById('today-day-num').textContent = todayIdx + 1;
+    document.getElementById('today-num').textContent = todayIdx + 1;
+    document.getElementById('today-task-text').textContent = t.task;
+    document.getElementById('today-task-detail').textContent = t.detail;
+    // highlight current day row
+    document.querySelectorAll('.day-row').forEach(r => r.classList.remove('today-task'));
+    const todayRow = document.querySelector('[data-day="'+todayIdx+'"]');
+    if (todayRow) todayRow.classList.add('today-task');
+  } else {
+    document.getElementById('today-banner').style.display = 'none';
+  }
+}
+
+function getAllTasks() {
+  return Array.from(document.querySelectorAll('.day-row')).map(r => ({
+    task: r.querySelector('.day-task').textContent,
+    detail: r.querySelector('.day-detail').textContent
+  }));
+}
+
+function showWeek(i) {
+  document.querySelectorAll('.week-panel').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.querySelectorAll('.wtab').forEach((t,j) => t.classList.toggle('active', j===i));
+}
+
+function confetti() {
+  const wrap = document.getElementById('confetti');
+  const colors = ['#7f77dd','#1d9e75','#ba7517','#d85a30','#5dcaa5','#fac775'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = '-10px';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay = Math.random() * 0.4 + 's';
+    p.style.animationDuration = (0.9 + Math.random()*0.6) + 's';
+    wrap.appendChild(p);
+    setTimeout(() => p.remove(), 1800);
+  }
+}
+
+function toggleNotifSetup() {
+  const el = document.getElementById('notif-setup');
+  el.classList.toggle('show');
+}
+
+function saveReminder() {
+  const t = document.getElementById('reminder-time').value;
+  if (!t) return;
+  state.reminderTime = t;
+  saveState(state);
+  document.getElementById('notif-btn').classList.add('active');
+  document.getElementById('notif-btn').textContent = '✓ Reminder: ' + t;
+  document.getElementById('notif-setup').classList.remove('show');
+  scheduleReminder(t);
+  if (Notification.permission !== 'granted') {
+    Notification.requestPermission();
+  }
+}
+
+function scheduleReminder(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  function check() {
+    const now = new Date();
+    if (now.getHours() === h && now.getMinutes() === m) {
+      if (Notification.permission === 'granted') {
+        const todayIdx = getDayIndex();
+        const tasks = getAllTasks();
+        const t = tasks[todayIdx] || { task: 'Keep learning!', detail: '' };
+        new Notification('AI Tracker — Day ' + (todayIdx+1), {
+          body: t.task,
+          icon: ''
+        });
+      }
+    }
+  }
+  setInterval(check, 60000);
+}
+
+function confirmReset() {
+  if (confirm('Reset all progress? This cannot be undone.')) {
+    state = { startDate: new Date().toISOString().slice(0,10), done: {}, completedDates: {} };
+    saveState(state);
+    render();
+  }
+}
+
+if (state.reminderTime) {
+  document.getElementById('notif-btn').classList.add('active');
+  document.getElementById('notif-btn').textContent = '✓ Reminder: ' + state.reminderTime;
+  scheduleReminder(state.reminderTime);
+}
+
+render();
+</script>
+</body>
+</html>
